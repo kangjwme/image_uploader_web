@@ -22,7 +22,7 @@
 首先，確保您已安裝 Python 3。接著，使用以下指令安裝 Flask 及其他必要的套件：
 
 ```bash
-pip install Flask
+pip install Flask werkzeug
 ```
 
 ### 步驟 2: 將專案克隆或下載到本地
