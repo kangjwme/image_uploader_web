@@ -2,7 +2,7 @@
 # 圖片上傳平台
 
 這是一個簡單的圖片上傳平台，用於上傳和儲存 GIF、JPG、PNG、HEIF 格式的圖片。上傳成功後，使用者將獲得圖片的直接連結。
-
+![](https://github.com/kangjwme/image_uploader_web/blob/main/img/image.png?raw=true)
 ## 功能特點
 
 - **支援的圖片格式**：GIF, JPG, JPEG, PNG, HEIF
