@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圖片上傳平台</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        #upload-container {
+            width: 300px;
+            height: 200px;
+            background-color: #3b73d1;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed white;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        #upload-container.drag-over {
+            background-color: #2a5ca8;
+        }
+        #link-container {
+            display: none;
+            text-align: center;
+        }
+        #link-container a {
+            color: #3b73d1;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        #error-message {
+            color: red;
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+    <script>
+        function validateFile(file) {
+            const allowedExtensions = ['gif', 'jpg', 'jpeg', 'png', 'heif'];
+            const fileSizeLimit = 10 * 1024 * 1024; // 10MB
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+
+            if (!allowedExtensions.includes(fileExtension)) {
+                showError("檔案格式不符合，只允許 gif, jpg, jpeg, png, heif 格式");
+                return false;
+            }
+
+            if (file.size > fileSizeLimit) {
+                showError("檔案過大，請選擇小於 10MB 的圖片");
+                return false;
+            }
+
+            return true;
+        }
+
+        function showError(message) {
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            document.getElementById('link-container').style.display = 'none'; // 隱藏成功連結
+        }
+
+        function clearError() {
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const uploadContainer = document.getElementById('upload-container');
+            const fileInput = document.getElementById('fileInput');
+            const linkContainer = document.getElementById('link-container');
+            const link = document.getElementById('link');
+
+            uploadContainer.addEventListener('click', () => fileInput.click());
+
+            uploadContainer.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadContainer.classList.add('drag-over');
+            });
+
+            uploadContainer.addEventListener('dragleave', () => {
+                uploadContainer.classList.remove('drag-over');
+            });
+
+            uploadContainer.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadContainer.classList.remove('drag-over');
+                const file = e.dataTransfer.files[0];
+                if (file) {
+                    clearError(); // 清除任何先前的錯誤訊息
+                    if (validateFile(file)) {
+                        fileInput.files = e.dataTransfer.files;
+                        uploadFile();
+                    }
+                }
+            });
+
+            fileInput.addEventListener('change', () => {
+                const file = fileInput.files[0];
+                if (file) {
+                    clearError(); // 清除任何先前的錯誤訊息
+                    if (validateFile(file)) {
+                        uploadFile();
+                    }
+                }
+            });
+
+            function uploadFile() {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+
+                fetch('/', {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => response.text())
+                .then(data => {
+                    linkContainer.style.display = 'block';
+                    link.innerHTML = data;
+                    link.href = data;
+                    clearError(); // 清除錯誤訊息
+                })
+                .catch(error => showError("上傳失敗：" + error));
+            }
+        });
+    </script>
+</head>
+<body>
+    <div id="upload-container">
+        將檔案拖曳到這<br>或點擊上傳
+    </div>
+    <input type="file" id="fileInput" name="file" accept=".gif, .jpg, .jpeg, .png, .heif" style="display: none;">
+    <div id="link-container">
+        <p>圖片上傳成功，連結如下：</p>
+        <a id="link" target="_blank"></a>
+    </div>
+    <div id="error-message"></div> <!-- 錯誤訊息區域 -->
+</body>
+</html>
